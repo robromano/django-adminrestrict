@@ -19,4 +19,4 @@ script:
 matrix:
     exclude:
         - python: 3.3
-          env: DJANGO=Django==1.4.5
+          env: DJANGO=Django==1.4.15

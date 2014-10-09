@@ -19,7 +19,7 @@ class ModelTests(TestCase):
     def test_blocked_ip(self):
         resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"})
         self.assertEqual(resp.status_code, 403)
-        self.assertTrue(resp.content.startswith("Access to admin is denied"))
+        self.assertTrue(resp.content.decode().startswith("Access to admin is denied"))
 
     def test_allowed_ip(self):
         a = AllowedIP.objects.create(ip_address="127.0.0.1")
