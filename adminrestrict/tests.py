@@ -23,13 +23,13 @@ class ModelTests(TestCase):
 
     def test_allowed_ip(self):
         a = AllowedIP.objects.create(ip_address="127.0.0.1")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"})
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
     def test_allow_all(self):
         a = AllowedIP.objects.create(ip_address="*")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"})
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
