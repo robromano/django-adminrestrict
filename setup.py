@@ -10,8 +10,7 @@ setup(
     name='django-adminrestrict',
     version=VERSION,
     description="Block .",
-    long_description=(
-        open("README.rst").read())
+    long_description=open("README.rst").read(),
     keywords='authentication, django, security',
     author='Robert Romano',
     author_email='rromano@gmail.com',
