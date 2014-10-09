@@ -1,9 +1,9 @@
 Django Admin Restrict
 =====================
 
-.. image:: https://secure.travis-ci.org/django-pci/django-axes.png?branch=master
+.. image:: https://secure.travis-ci.org/robromano/django-adminrestrict.png?branch=master
     :alt: Build Status
-    :target: http://travis-ci.org/django-pci/django-axes
+    :target: http://travis-ci.org/robromano/django-adminrestrict
 
 ``django-adminrestrict`` enables you to block access to the Django admin pages
 unless requests come from specific IP addresses.  
