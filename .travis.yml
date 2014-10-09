@@ -14,7 +14,7 @@ install:
   - pip install -q $DJANGO
 
 script:
-  - PYTHONPATH=$PYTHONPATH:$PWD django-admin.py test adminrestrict
+  - PYTHONPATH=$PYTHONPATH:$PWD django-admin.py test adminrestrict --settings=test_settings
 
 matrix:
     exclude:
