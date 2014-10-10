@@ -1,7 +1,4 @@
 include LICENSE README.rst
 recursive-include adminrestrict *.py
 include .travis.yml
-recursive-include examples *.py
-recursive-include examples *.rst
-recursive-include examples *.sh
 include Makefile
