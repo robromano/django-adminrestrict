@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2014 Robert C. Romano"
 
 
 import socket
+import re
 
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
@@ -16,7 +17,9 @@ from adminrestrict.models import AllowedIP
 
 
 def is_valid_ip(ip_address):
-    """ Check Validity of an IP address """
+    """ 
+    Check Validity of an IP address
+    """
     valid = True
     try:
         socket.inet_aton(ip_address.strip())
@@ -26,7 +29,9 @@ def is_valid_ip(ip_address):
 
 
 def get_ip_address_from_request(request):
-    """ Makes the best attempt to get the client's real IP or return the loopback """
+    """ 
+    Makes the best attempt to get the client's real IP or return the loopback
+    """
     PRIVATE_IPS_PREFIX = ('10.', '172.', '192.', '127.')
     ip_address = ''
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
@@ -72,9 +77,15 @@ class AdminPagesRestrictMiddleware(object):
             # If any entry as "*" then we open access (as if this middleware wasn't installed)
             if AllowedIP.objects.filter(ip_address="*").count() > 0:
                 return None
+            
+            request_ip = get_ip_address_from_request(request)
+
+            for filt in AllowedIP.objects.filter(ip_address__endswith="*"):
+                if re.match(filt.ip_address.replace("*", ".*"), request_ip):
+                    return None
 
             # Otherwise check if the IP address is in the table. If not, deny access
-            if AllowedIP.objects.filter(ip_address=get_ip_address_from_request(request)).count() == 0:
+            if AllowedIP.objects.filter(ip_address=request_ip).count() == 0:
                 return HttpResponseForbidden("Access to admin is denied.")
 
         return None

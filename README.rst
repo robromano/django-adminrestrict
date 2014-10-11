@@ -81,12 +81,19 @@ section of the admin pages.
 Adding allowed IP addresses
 ---------------------------
 
-Login to the admin pages and browse to the Adminrestrict apps, and
+Login to the admin pages and browse to the Adminrestrict app, and
 start creating recorded in the `AllowedIP` table.  Just type in the IP
 addresses and save records.
 
-Adding wildcard to disable restrictions
----------------------------------------
+Adding allowed IP addresses with wildcards
+------------------------------------------
+
+Create a `AllowedIP` entries ending with a "*" to any IPs that start
+with the specified patterh. For example, adding `192.*` would allow
+addreses starting matching 192.*.*.* to login to the admin pages.
+
+Adding * to disable all restrictions
+------------------------------------
 
 Create a single `AllowedIP` record with "*" as the IP address, to
 temporarily disable restrictions. In this way, you do not have to
