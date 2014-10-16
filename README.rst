@@ -7,8 +7,6 @@ Django Admin Restrict
 .. image:: https://secure.travis-ci.org/robromano/django-adminrestrict.png?branch=master
     :alt: Build Status
     :target: http://travis-ci.org/robromano/django-adminrestrict
-.. image:: https://pypip.in/wheel/django-adminrestrict/badge.png
-    :target: https://pypi.python.org/pypi/django-adminrestrict/
 .. image:: https://pypip.in/license/django-adminrestrict/badge.png
     :target: https://pypi.python.org/pypi/django-adminrestrict/
 
