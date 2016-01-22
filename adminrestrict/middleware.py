@@ -72,8 +72,9 @@ class AdminPagesRestrictMiddleware(object):
     """
 
     def process_request(self, request):
-        if request.path.startswith(reverse('admin:index')) and request.method == 'POST':
-
+        # Section adjusted to restrict login to ?edit (sing cms-toolbar-login)into DjangoCMS login.
+        if request.path.startswith(reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()) and request.method == 'POST':
+       
             # If any entry as "*" then we open access (as if this middleware wasn't installed)
             if AllowedIP.objects.filter(ip_address="*").count() > 0:
                 return None
