@@ -15,10 +15,10 @@ from adminrestrict.models import AllowedIP
 class ModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="foo", password="bar")
-        
+
     def test_blocked_ip(self):
         resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"})
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 302)
         self.assertTrue(resp.content.decode().startswith("Access to admin is denied"))
 
     def test_allowed_ip(self):
@@ -46,5 +46,5 @@ class ModelTests(TestCase):
         a.delete()
 
 
-        
-        
+
+

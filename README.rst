@@ -11,7 +11,7 @@ Django Admin Restrict
     :target: https://pypi.python.org/pypi/django-adminrestrict/
 
 ``django-adminrestrict`` enables you to block access to the Django admin pages
-unless requests come from specific IP addresses.  
+unless requests come from specific IP addresses.
 
 
 Requirements
@@ -73,14 +73,20 @@ Next, install the ``FailedLoginMiddleware`` middleware::
         'adminrestrict.middleware.AdminPagesRestrictMiddleware',
     )
 
+
 Run ``python manage.py syncdb``.  This creates the appropriate tables in your database
 that are necessary for operation.
+
+IMPORTANT: When the package is configured in your project, an empty table called `AllowedIP`
+will be created in your database. If this table is empty or has one record with
+a "*" the package will not restrict any IPs. If you want to add specific restrictions
+please go to the next section.
 
 Usage
 =====
 
-Using ``django-adminstrict`` is extremely simple.  Once you install the application
-and the middleware, all you need to do is update the allowed IP addresses `AllowedIP` 
+Using ``django-adminrestrict`` is extremely simple.  Once you install the application
+and the middleware, all you need to do is update the allowed IP addresses `AllowedIP`
 section of the admin pages.
 
 Adding allowed IP addresses
@@ -104,5 +110,5 @@ Create a single `AllowedIP` record with "*" as the IP address, to
 temporarily disable restrictions. In this way, you do not have to
 modify settings.py and remove the middleware if you need to disable.
 
-Having at least one `AllowedIP` record with * as the IP address 
+Having at least one `AllowedIP` record with * as the IP address
 effectively disables all restrictions.
