@@ -18,7 +18,7 @@ class ModelTests(TestCase):
 
     def test_allow_all_if_empty(self):
         resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"})
-        self.assertEqual(resp.status_code, 200)
+        self.assertIn(resp.status_code, [200, 302])
 
     def test_allowed_ip(self):
         a = AllowedIP.objects.create(ip_address="127.0.0.1")
