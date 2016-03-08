@@ -17,7 +17,7 @@ from adminrestrict.models import AllowedIP
 
 
 def is_valid_ip(ip_address):
-    """ 
+    """
     Check Validity of an IP address
     """
     valid = True
@@ -29,7 +29,7 @@ def is_valid_ip(ip_address):
 
 
 def get_ip_address_from_request(request):
-    """ 
+    """
     Makes the best attempt to get the client's real IP or return the loopback
     """
     PRIVATE_IPS_PREFIX = ('10.', '172.', '192.', '127.')
@@ -74,11 +74,15 @@ class AdminPagesRestrictMiddleware(object):
     def process_request(self, request):
         # Section adjusted to restrict login to ?edit (sing cms-toolbar-login)into DjangoCMS login.
         if request.path.startswith(reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()) and request.method == 'POST':
-       
+
+            # if there aren't allowed ips defined it will not check anything
+            if AllowedIP.objects.count() <= 0:
+                return None
+
             # If any entry as "*" then we open access (as if this middleware wasn't installed)
             if AllowedIP.objects.filter(ip_address="*").count() > 0:
                 return None
-            
+
             request_ip = get_ip_address_from_request(request)
 
             for filt in AllowedIP.objects.filter(ip_address__endswith="*"):
@@ -90,7 +94,3 @@ class AdminPagesRestrictMiddleware(object):
                 return HttpResponseForbidden("Access to admin is denied.")
 
         return None
-
-
-
-
