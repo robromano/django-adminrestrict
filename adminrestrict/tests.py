@@ -16,10 +16,9 @@ class ModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="foo", password="bar")
 
-    def test_blocked_ip(self):
+    def test_allow_all_if_empty(self):
         resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"})
-        self.assertEqual(resp.status_code, 302)
-        self.assertTrue(resp.content.decode().startswith("Access to admin is denied"))
+        self.assertEqual(resp.status_code, 200)
 
     def test_allowed_ip(self):
         a = AllowedIP.objects.create(ip_address="127.0.0.1")
