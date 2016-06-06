@@ -72,8 +72,11 @@ Next, install the ``FailedLoginMiddleware`` middleware::
     )
 
 
-Run ``python manage.py syncdb``.  This creates the appropriate tables in your database
-that are necessary for operation.
+For django(<1.7), 
+run ``python manage.py syncdb``.
+For django(>1.7), 
+run ``python manage.py makemigrations adminrestrict; python manage.py migrate``. 
+This creates the appropriate tables in your database that are necessary for operation.
 
 IMPORTANT: When the package is configured in your project, an empty table called `AllowedIP`
 will be created in your database. If this table is empty or has one record with
