@@ -9,7 +9,7 @@ VERSION = '1.0.3'
 setup(
     name='django-adminrestrict',
     version=VERSION,
-    description="Block .",
+    description="Blocks access to the Django admin pages unless requests come from specific IP addresses",
     long_description=open("README.rst").read(),
     keywords='authentication, django, security',
     author='Robert Romano',
