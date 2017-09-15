@@ -11,6 +11,7 @@ env:
   - DJANGO=Django==1.7.11
   - DJANGO=Django==1.8.18
   - DJANGO=Django==1.10.8
+  - DJANGO=Django==1.11.5
 
 install:
   - pip install -q $DJANGO
