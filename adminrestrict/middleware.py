@@ -10,7 +10,7 @@ import socket
 import re
 
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseForbidden
 
 from adminrestrict.models import AllowedIP
@@ -70,27 +70,30 @@ class AdminPagesRestrictMiddleware(object):
     A middleware that restricts login attempts to admin pages to
     restricted IP addresses only. Everyone else gets 403.
     """
+    def __init__(self, get_response):
+        self.get_response = get_response 
+        # One-time configuration and initialization.
 
-    def process_request(self, request):
+    def __call__(self, request):
         # Section adjusted to restrict login to ?edit (sing cms-toolbar-login)into DjangoCMS login.
         if request.path.startswith(reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()) and request.method == 'POST':
 
             # if there aren't allowed ips defined it will not check anything
             if AllowedIP.objects.count() <= 0:
-                return None
+                return self.get_response(request)
 
             # If any entry as "*" then we open access (as if this middleware wasn't installed)
             if AllowedIP.objects.filter(ip_address="*").count() > 0:
-                return None
+                return self.get_response(request)
 
             request_ip = get_ip_address_from_request(request)
 
             for filt in AllowedIP.objects.filter(ip_address__endswith="*"):
                 if re.match(filt.ip_address.replace("*", ".*"), request_ip):
-                    return None
+                    return self.get_response(request)
 
             # Otherwise check if the IP address is in the table. If not, deny access
             if AllowedIP.objects.filter(ip_address=request_ip).count() == 0:
                 return HttpResponseForbidden("Access to admin is denied.")
 
-        return None
+        return self.get_response(request)
