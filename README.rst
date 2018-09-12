@@ -62,9 +62,20 @@ First of all, you must add this project to your list of ``INSTALLED_APPS`` in
         ...
     )
 
-Next, install the ``FailedLoginMiddleware`` middleware::
+Next, install the ``AdminPagesRestrictMiddleware`` middleware::
+
+For django(<1.10)
 
     MIDDLEWARE_CLASSES = (
+        'django.middleware.common.CommonMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'adminrestrict.middleware.AdminPagesRestrictMiddleware',
+    )
+    
+ For django(>=1.10)
+
+    MIDDLEWARE = (
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
