@@ -9,9 +9,9 @@ __copyright__ = "Copyright 2014 Robert C. Romano"
 import socket
 import re
 
-from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.http import HttpResponseForbidden
+from django.utils.deprecation import MiddlewareMixin
 
 from adminrestrict.models import AllowedIP
 
@@ -65,35 +65,39 @@ def get_ip_address_from_request(request):
     return ip_address
 
 
-class AdminPagesRestrictMiddleware(object):
+class AdminPagesRestrictMiddleware(MiddlewareMixin):
     """
     A middleware that restricts login attempts to admin pages to
     restricted IP addresses only. Everyone else gets 403.
     """
-    def __init__(self, get_response):
-        self.get_response = get_response 
-        # One-time configuration and initialization.
 
-    def __call__(self, request):
-        # Section adjusted to restrict login to ?edit (sing cms-toolbar-login)into DjangoCMS login.
-        if request.path.startswith(reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()) and request.method == 'POST':
+    def process_request(self, request):
+        """
+        Check if the request is made form an allowed IP
+        """
+        # Section adjusted to restrict login to ?edit
+        # (sing cms-toolbar-login)into DjangoCMS login.
+        restricted_request_uri = request.path.startswith(
+            reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()
+        )
+        if restricted_request_uri and request.method == 'POST':
 
-            # if there aren't allowed ips defined it will not check anything
-            if AllowedIP.objects.count() <= 0:
-                return self.get_response(request)
+            # AllowedIP table emty means access is always granted
+            if AllowedIP.objects.count() >= 0:
 
-            # If any entry as "*" then we open access (as if this middleware wasn't installed)
-            if AllowedIP.objects.filter(ip_address="*").count() > 0:
-                return self.get_response(request)
+                # If there are wildcard IPs access is always granted
+                if AllowedIP.objects.filter(ip_address="*").count() == 0:
 
-            request_ip = get_ip_address_from_request(request)
+                    request_ip = get_ip_address_from_request(request)
 
-            for filt in AllowedIP.objects.filter(ip_address__endswith="*"):
-                if re.match(filt.ip_address.replace("*", ".*"), request_ip):
-                    return self.get_response(request)
+                    # If the request_ip is in the AllowedIP the access
+                    # is granted
+                    if AllowedIP.objects.filter(ip_address=request_ip).count() == 0:
 
-            # Otherwise check if the IP address is in the table. If not, deny access
-            if AllowedIP.objects.filter(ip_address=request_ip).count() == 0:
-                return HttpResponseForbidden("Access to admin is denied.")
-
-        return self.get_response(request)
+                        # We check regular expressions defining ranges
+                        # of IPs. If any range contains the request_ip
+                        # the access is granted
+                        for regex_ip_range in AllowedIP.objects.filter(ip_address__endswith="*"):
+                            if re.match(regex_ip_range.ip_address.replace("*", ".*"), request_ip):
+                                return None
+                        return HttpResponseForbidden("Access to admin is denied.")
