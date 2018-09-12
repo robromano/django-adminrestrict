@@ -83,7 +83,7 @@ class AdminPagesRestrictMiddleware(MiddlewareMixin):
         if restricted_request_uri and request.method == 'POST':
 
             # AllowedIP table emty means access is always granted
-            if AllowedIP.objects.count() >= 0:
+            if AllowedIP.objects.count() > 0:
 
                 # If there are wildcard IPs access is always granted
                 if AllowedIP.objects.filter(ip_address="*").count() == 0:
