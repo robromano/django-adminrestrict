@@ -11,7 +11,15 @@ import re
 
 from django.urls import reverse
 from django.http import HttpResponseForbidden
-from django.utils.deprecation import MiddlewareMixin
+
+# MiddlewareMixin is only available (and useful) in Django 1.10 and
+# newer versions
+try:
+    from django.utils.deprecation import MiddlewareMixin
+    parent_class = MiddlewareMixin
+except ImportError as e:
+    parent_class = object
+
 
 from adminrestrict.models import AllowedIP
 
@@ -65,7 +73,7 @@ def get_ip_address_from_request(request):
     return ip_address
 
 
-class AdminPagesRestrictMiddleware(MiddlewareMixin):
+class AdminPagesRestrictMiddleware(parent_class):
     """
     A middleware that restricts login attempts to admin pages to
     restricted IP addresses only. Everyone else gets 403.
