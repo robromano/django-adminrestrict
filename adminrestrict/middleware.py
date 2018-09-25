@@ -9,7 +9,11 @@ __copyright__ = "Copyright 2014 Robert C. Romano"
 import socket
 import re
 
-from django.urls import reverse
+if django.VERSION[:2] >= (1, 10):
+    from django.urls import reverse
+else:
+    from django.core.urlresolvers import reverse
+
 from django.http import HttpResponseForbidden
 
 # MiddlewareMixin is only available (and useful) in Django 1.10 and
