@@ -6,8 +6,9 @@ __author__ = "Robert Romano (rromano@gmail.com)"
 __copyright__ = "Copyright 2014 Robert C. Romano"
 
 
-import socket
+import django
 import re
+import socket
 
 if django.VERSION[:2] >= (1, 10):
     from django.urls import reverse
