@@ -5,9 +5,13 @@ adminrestrict tests
 __author__ = "Robert Romano (rromano@gmail.com)"
 __copyright__ = "Copyright 2014 Robert C. Romano"
 
+import django
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+try:
+    from django.core.urlresolvers import reverse
+except ImportError as e:
+    from django.urls import reverse
 
 from adminrestrict.models import AllowedIP
 
@@ -45,5 +49,27 @@ class ModelTests(TestCase):
         a.delete()
 
 
+class AdminTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser(username="foo", email="", password="bar")
+        self.client.login(username="foo", password="bar")
 
+    def test_allowed_ip_add(self):
+        self.client.post(reverse("admin:adminrestrict_allowedip_add"),
+                         data={'ip_address': "127.0.0.1", 'description': "local"})
+        a = AllowedIP.objects.get()
 
+        self.assertIsNotNone(a)
+        self.assertEqual(a.created_by, self.user)
+        self.assertEqual(a.edited_by, self.user)
+
+    def test_allowed_ip_change(self):
+        creator = User.objects.create_user(username="foo2", password="bar")
+        a = AllowedIP.objects.create(ip_address="*", created_by=creator, edited_by=creator)
+
+        self.client.post(reverse("admin:adminrestrict_allowedip_change", args=[a.id]),
+                         data={'ip_address': "127.0.0.1", 'description': "local"})
+        a = AllowedIP.objects.get(pk=a.pk)
+
+        self.assertEqual(a.created_by, creator)
+        self.assertEqual(a.edited_by, self.user)
