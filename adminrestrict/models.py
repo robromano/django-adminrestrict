@@ -15,6 +15,9 @@ class AllowedIP(models.Model):
     """
     ip_address = models.CharField(max_length=512)
 
+    created_by = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name="created_allowed_ip", null=True, editable=False)
+    edited_by = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name="edited_allowed_ip", null=True, editable=False)
+
     def __unicode__(self):
         return u'%s' % self.ip_address
 

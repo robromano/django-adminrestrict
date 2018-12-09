@@ -11,7 +11,8 @@ from adminrestrict.models import AllowedIP
 
 
 class AllowedIPAdmin(admin.ModelAdmin):
-    list_display = ('id', 'ip_address')
+    list_display = ('id', 'ip_address', 'created_by', 'edited_by')
+    readonly_fields = ('created_by', 'edited_by')
 
 admin.site.register(AllowedIP, AllowedIPAdmin)
 
