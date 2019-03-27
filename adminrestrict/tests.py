@@ -7,7 +7,10 @@ __copyright__ = "Copyright 2014 Robert C. Romano"
 
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+try:
+    from django.core.urlresolvers import reverse
+except ImportError as e:
+    from django.urls import reverse
 
 from adminrestrict.models import AllowedIP
 
