@@ -45,3 +45,6 @@ matrix:
         - python: 3.6
           env: DJANGO=Django==1.10.8
 
+after_success:
+    - pip install codecov
+    - codecov -e DJANGO
