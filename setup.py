@@ -4,13 +4,20 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = '1.0.4'
+# The directory containing this file
+HERE = os.path.realpath(os.path.join(__file__, '..'))
+
+# The text of the README file
+README = open(os.path.join(HERE,"README.rst")).read()
+
+VERSION = '2.0'
 
 setup(
     name='django-adminrestrict',
     version=VERSION,
     description="Blocks access to the Django admin pages unless requests come from specific IP addresses",
-    long_description=open("README.rst").read(),
+    long_description=README,
+    long_description_content_type="text/x-rst", 
     keywords='authentication, django, security',
     author='Robert Romano',
     author_email='rromano@gmail.com',
