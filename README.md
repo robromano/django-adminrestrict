@@ -1,55 +1,49 @@
-Django Admin Restrict
-=====================
+# Django Admin Restrict
 
-.. image:: https://secure.travis-ci.org/robromano/django-adminrestrict.png?branch=master
-    :alt: Build Status
-    :target: http://travis-ci.org/robromano/django-adminrestrict
-.. image:: https://badge.fury.io/py/django-adminrestrict.svg
-    :target: https://badge.fury.io/py/django-adminrestrict
-    :alt: Latest PyPI version
+[![build-status-image]][travis]
+[![pypi-version]][pypi]
 
-``django-adminrestrict`` enables you to block access to the Django admin pages
-unless requests come from specific IP addresses.
+**Restrict admin pages using simple IP address rules.**
+
+## Overview
+
+``django-adminrestrict`` secures access to the Django admin pages. It works
+by blocking requests for the admin page path unless the requests come from specific IP addresses
+that you specify in a model.  
 
 
-Requirements
-============
+## Requirements
 
 ``django-adminrestrict`` requires Django 1.4 or later.  The
 application is intended improve the security around the Django admin
 login pages.
 
-Installation
-============
+## Installation
 
 Download and install ``django-adminrestrict`` using **one** of the following methods:
 
-pip
----
+### pip
 
-You can install the latest stable package running this command::
+You can install the latest stable package running this command:
 
     $ pip install django-adminrestrict
 
-Setuptools
-----------
+### Setuptools
 
-You can install the latest stable package running::
+You can install the latest stable package running:
 
     $ easy_install django-adminrestrict
 
 
-Development
-===========
+## Development
 
 You can contribute to this project forking it from github and sending pull requests.
 
 
-Configuration
-=============
+## Configuration
 
 First of all, you must add this project to your list of ``INSTALLED_APPS`` in
-``settings.py``::
+``settings.py``
 
     INSTALLED_APPS = (
         'django.contrib.admin',
@@ -62,7 +56,7 @@ First of all, you must add this project to your list of ``INSTALLED_APPS`` in
         ...
     )
 
-Next, install the ``FailedLoginMiddleware`` middleware::
+Next, install the ``FailedLoginMiddleware`` middleware:
 
     MIDDLEWARE_CLASSES = (
         'django.middleware.common.CommonMiddleware',
@@ -83,29 +77,25 @@ will be created in your database. If this table is empty or has one record with
 a "*" the package will not restrict any IPs. If you want to add specific restrictions
 please go to the next section.
 
-Usage
-=====
+## Usage
 
 Using ``django-adminrestrict`` is extremely simple.  Once you install the application
 and the middleware, all you need to do is update the allowed IP addresses `AllowedIP`
 section of the admin pages.
 
-Adding allowed IP addresses
----------------------------
+### Adding allowed IP addresses
 
 Login to the admin pages and browse to the Adminrestrict app, and
 start creating recorded in the `AllowedIP` table.  Just type in the IP
 addresses and save records.
 
-Adding allowed IP addresses with wildcards
-------------------------------------------
+### Adding allowed IP addresses with wildcards
 
 Create a `AllowedIP` entries ending with a "*" to any IPs that start
 with the specified patterh. For example, adding `192.*` would allow
 addreses starting matching 192.*.*.* to login to the admin pages.
 
-Adding * to disable all restrictions
-------------------------------------
+### Adding * to disable all restrictions
 
 Create a single `AllowedIP` record with "*" as the IP address, to
 temporarily disable restrictions. In this way, you do not have to
@@ -113,3 +103,8 @@ modify settings.py and remove the middleware if you need to disable.
 
 Having at least one `AllowedIP` record with * as the IP address
 effectively disables all restrictions.
+
+[build-status-image]: https://secure.travis-ci.org/robromano/django-adminrestrict.svg?branch=master
+[travis]: https://travis-ci.org/robromano/django-adminrestrict?branch=master
+[pypi-version]: https://badge.fury.io/py/django-adminrestrict.svg
+[pypi]: https://pypi.org/project/django-adminrestrict/

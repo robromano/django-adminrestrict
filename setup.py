@@ -8,16 +8,16 @@ from setuptools import setup, find_packages
 HERE = os.path.realpath(os.path.join(__file__, '..'))
 
 # The text of the README file
-README = open(os.path.join(HERE,"README.rst")).read()
+README = open(os.path.join(HERE,"README.md")).read()
 
-VERSION = '2.0'
+VERSION = '2.0.1'
 
 setup(
     name='django-adminrestrict',
     version=VERSION,
     description="Blocks access to the Django admin pages unless requests come from specific IP addresses",
     long_description=README,
-    long_description_content_type="text/x-rst", 
+    long_description_content_type="text/markdown", 
     keywords='authentication, django, security',
     author='Robert Romano',
     author_email='rromano@gmail.com',
