@@ -46,5 +46,5 @@ matrix:
           env: DJANGO=Django==1.10.8
 
 after_success:
-    - pip install codecov
-    - codecov -e DJANGO
+    - bash <(curl -s https://codecov.io/bash)
+
