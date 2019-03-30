@@ -18,6 +18,7 @@ env:
 
 install:
   - pip install -q $DJANGO
+  - pip install codecov
 
 script:
   - PYTHONPATH=$PYTHONPATH:$PWD django-admin.py test adminrestrict --settings=adminrestrict.test_settings
