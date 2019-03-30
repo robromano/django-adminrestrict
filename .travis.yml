@@ -21,7 +21,7 @@ install:
   - pip install codecov
 
 script:
-  - PYTHONPATH=$PYTHONPATH:$PWD coverage run django-admin.py test adminrestrict --settings=adminrestrict.test_settings
+  - PYTHONPATH=$PYTHONPATH:$PWD django-admin.py test adminrestrict --settings=adminrestrict.test_settings
 
 matrix:
     exclude:
