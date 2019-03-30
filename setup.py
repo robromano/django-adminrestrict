@@ -15,7 +15,7 @@ VERSION = '2.0.1'
 setup(
     name='django-adminrestrict',
     version=VERSION,
-    description="Blocks access to the Django admin pages unless requests come from specific IP addresses",
+    description="Restrict admin pages using simple IP address rules",
     long_description=README,
     long_description_content_type="text/markdown", 
     keywords='authentication, django, security',
