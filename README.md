@@ -92,7 +92,7 @@ addresses and save records.
 ### Adding allowed IP addresses with wildcards
 
 Create a `AllowedIP` entries ending with a "\*" to any IPs that start
-with the specified patterh. For example, adding `192.*` would allow
+with the specified pattern. For example, adding `192.*` would allow
 addreses starting matching 192.*.*.* to login to the admin pages.
 
 ### Adding * to disable all restrictions
