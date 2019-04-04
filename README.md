@@ -74,7 +74,7 @@ For django(>=1.7), run ``python manage.py makemigrations adminrestrict; python m
 
 IMPORTANT: When the package is configured in your project, an empty table called `AllowedIP`
 will be created in your database. If this table is empty or has one record with
-a "*" the package will not restrict any IPs. If you want to add specific restrictions
+a "\*" the package will not restrict any IPs. If you want to add specific restrictions
 please go to the next section.
 
 ## Usage
@@ -91,13 +91,13 @@ addresses and save records.
 
 ### Adding allowed IP addresses with wildcards
 
-Create a `AllowedIP` entries ending with a "*" to any IPs that start
+Create a `AllowedIP` entries ending with a "\*" to any IPs that start
 with the specified patterh. For example, adding `192.*` would allow
 addreses starting matching 192.*.*.* to login to the admin pages.
 
 ### Adding * to disable all restrictions
 
-Create a single `AllowedIP` record with "*" as the IP address, to
+Create a single `AllowedIP` record with "\*" as the IP address, to
 temporarily disable restrictions. In this way, you do not have to
 modify settings.py and remove the middleware if you need to disable.
 
