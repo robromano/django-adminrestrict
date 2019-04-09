@@ -1,6 +1,7 @@
 # Django Admin Restrict
 
 [![build-status-image]][travis]
+[![coverage-status-image]][codecov]
 [![pypi-version]][pypi]
 
 **Restrict admin pages using simple IP address rules.**
@@ -108,3 +109,5 @@ effectively disables all restrictions.
 [travis]: https://travis-ci.org/robromano/django-adminrestrict?branch=master
 [pypi-version]: https://badge.fury.io/py/django-adminrestrict.svg
 [pypi]: https://pypi.org/project/django-adminrestrict/
+[coverage-status-image]: https://img.shields.io/codecov/c/github/robromano/django-adminrestrict/master.svg
+[codecov]: https://codecov.io/github/robromano/django-adminrestrict?branch=master
