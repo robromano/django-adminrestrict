@@ -57,7 +57,7 @@ First of all, you must add this project to your list of ``INSTALLED_APPS`` in
         ...
     )
 
-Next, install the ``FailedLoginMiddleware`` middleware:
+Next, install the ``AdminPagesRestrictMiddleware`` middleware:
 
     MIDDLEWARE_CLASSES = (
         'django.middleware.common.CommonMiddleware',
