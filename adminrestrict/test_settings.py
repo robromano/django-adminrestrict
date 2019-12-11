@@ -42,6 +42,9 @@ MIDDLEWARE_CLASSES = (
     'adminrestrict.middleware.AdminPagesRestrictMiddleware'
 )
 
+if django.VERSION[0] >= 3 or (django.VERSION[0] == 2 and django.VERSION[1] >= 2):
+    MIDDLEWARE_CLASSES += 'django.contrib.messages.middleware.MessageMiddleware'
+
 MIDDLEWARE = MIDDLEWARE_CLASSES
 
 ROOT_URLCONF = 'adminrestrict.test_urls'
