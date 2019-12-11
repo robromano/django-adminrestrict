@@ -4,6 +4,7 @@ python:
   - 2.7
   - 3.4
   - 3.6
+  - 3.7
 
 env:
   - DJANGO=Django==1.4.22 
@@ -12,9 +13,11 @@ env:
   - DJANGO=Django==1.7.11 
   - DJANGO=Django==1.8.19 
   - DJANGO=Django==1.10.8 
-  - DJANGO=Django==1.11.20
+  - DJANGO=Django==1.11.26
   - DJANGO=Django==2.0.13
-  - DJANGO=Django==2.1.7  
+  - DJANGO=Django==2.1.7
+  - DJANGO=Django==2.2.8
+  - DJANGO=Django==3.0
 
 install:
   - pip install -q $DJANGO
@@ -44,6 +47,18 @@ matrix:
         - python: 3.6          
           env: DJANGO=Django==1.8.19
         - python: 3.6
+          env: DJANGO=Django==1.10.8
+        - python: 3.7
+          env: DJANGO=Django==1.4.22
+        - python: 3.7
+          env: DJANGO=Django==1.5.12
+        - python: 3.7
+          env: DJANGO=Django==1.6.11
+        - python: 3.7
+          env: DJANGO=Django==1.7.11
+        - python: 3.7          
+          env: DJANGO=Django==1.8.19
+        - python: 3.7
           env: DJANGO=Django==1.10.8
 
 after_success:
