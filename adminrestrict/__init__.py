@@ -3,7 +3,7 @@ try:
         'django-adminrestrict'
     ).version
 except:
-    __version__ = ''
+    __version__ = '2.0.2'
 
 
 def get_version():

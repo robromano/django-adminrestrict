@@ -10,7 +10,7 @@ HERE = os.path.realpath(os.path.join(__file__, '..'))
 # The text of the README file
 README = open(os.path.join(HERE,"README.md")).read()
 
-VERSION = '2.0.1'
+VERSION = '2.0.2'
 
 setup(
     name='django-adminrestrict',
