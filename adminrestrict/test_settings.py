@@ -21,7 +21,7 @@ if django.VERSION[:2] >= (1, 8):
                     'django.template.context_processors.debug',
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                    'django.contrib.messages.context_processors.messages',
                 ],
                 'loaders':[
                     ('django.template.loaders.cached.Loader', [
@@ -43,9 +43,9 @@ MIDDLEWARE_CLASSES = [
 ]
 
 if django.VERSION[0] >= 3 or (django.VERSION[0] == 2 and django.VERSION[1] >= 2):
-    MIDDLEWARE_CLASSES += 'django.contrib.messages.middleware.MessageMiddleware'
+    MIDDLEWARE_CLASSES.append('django.contrib.messages.middleware.MessageMiddleware')
 
-MIDDLEWARE = MIDDLEWARE_CLASSES
+MIDDLEWARE = tuple(MIDDLEWARE_CLASSES)
 
 ROOT_URLCONF = 'adminrestrict.test_urls'
 
