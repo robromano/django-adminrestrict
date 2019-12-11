@@ -35,12 +35,12 @@ if django.VERSION[:2] >= (1, 8):
 
 SITE_ID = 1
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'adminrestrict.middleware.AdminPagesRestrictMiddleware'
-)
+]
 
 if django.VERSION[0] >= 3 or (django.VERSION[0] == 2 and django.VERSION[1] >= 2):
     MIDDLEWARE_CLASSES += 'django.contrib.messages.middleware.MessageMiddleware'
