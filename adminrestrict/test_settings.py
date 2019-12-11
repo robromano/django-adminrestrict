@@ -42,13 +42,7 @@ MIDDLEWARE_CLASSES = (
     'adminrestrict.middleware.AdminPagesRestrictMiddleware'
 )
 
-if django.VERSION[0] >= 2:
-    MIDDLEWARE = (
-        'django.middleware.common.CommonMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'adminrestrict.middleware.AdminPagesRestrictMiddleware'
-    )
+MIDDLEWARE = MIDDLEWARE_CLASSES
 
 ROOT_URLCONF = 'adminrestrict.test_urls'
 
