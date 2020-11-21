@@ -10,7 +10,7 @@ HERE = os.path.realpath(os.path.join(__file__, '..'))
 # The text of the README file
 README = open(os.path.join(HERE,"README.md")).read()
 
-VERSION = '2.0.2'
+VERSION = '2.0.3'
 
 setup(
     name='django-adminrestrict',
@@ -20,7 +20,7 @@ setup(
     long_description_content_type="text/markdown", 
     keywords='authentication, django, security',
     author='Robert Romano',
-    author_email='rromano@gmail.com',
+    author_email='rromano@',
     url='https://github.com/robromano/django-adminrestrict',
     license='MIT',
     package_dir={'adminrestrict': 'adminrestrict'},

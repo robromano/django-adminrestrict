@@ -2,8 +2,8 @@
 adminrestrict middleware
 """
 
-__author__ = "Robert Romano (rromano@gmail.com)"
-__copyright__ = "Copyright 2014 Robert C. Romano"
+__author__ = "Robert Romano"
+__copyright__ = "Copyright 2020 Robert C. Romano"
 
 
 import django

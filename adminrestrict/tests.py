@@ -2,8 +2,8 @@
 adminrestrict tests
 """
 
-__author__ = "Robert Romano (rromano@gmail.com)"
-__copyright__ = "Copyright 2014 Robert C. Romano"
+__author__ = "Robert Romano"
+__copyright__ = "Copyright 2021 Robert C. Romano"
 
 from django.test import TestCase
 from django.contrib.auth.models import User

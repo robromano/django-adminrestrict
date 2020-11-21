@@ -2,8 +2,8 @@
 adminrestrict app model admin definitions.
 """
 
-__author__ = "Robert Romano (rromano@gmail.com)"
-__copyright__ = "Copyright 2014 Robert C. Romano"
+__author__ = "Robert Romano"
+__copyright__ = "Copyright 2021 Robert C. Romano"
 
 
 from django.contrib import admin
