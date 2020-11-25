@@ -65,3 +65,4 @@ SECRET_KEY = 'too-secret-for-test'
 LOGIN_REDIRECT_URL = '/admin'
 
 
+

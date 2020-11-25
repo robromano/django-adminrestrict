@@ -15,6 +15,7 @@ if django.VERSION[:2] >= (1, 10):
 else:
     from django.core.urlresolvers import reverse
 
+from django.conf import settings
 from django.http import HttpResponseForbidden
 
 # MiddlewareMixin is only available (and useful) in Django 1.10 and
@@ -84,6 +85,36 @@ class AdminPagesRestrictMiddleware(parent_class):
     restricted IP addresses only. Everyone else gets 403.
     """
 
+    def request_ip_is_allowed(self, request):
+        """ Returns True if the request IP is allowed based on records in 
+        the AllowedIP table, False otherwise."""
+
+        # AllowedIP table empty means access is always granted
+        if AllowedIP.objects.count() == 0:
+            return True
+        
+        # If there are wildcard IPs access is always granted
+        if AllowedIP.objects.filter(ip_address="*").count() == 1:
+            return True
+        
+        request_ip = get_ip_address_from_request(request)
+                
+        # If the request_ip is in the AllowedIP the access
+        # is granted
+        if AllowedIP.objects.filter(ip_address=request_ip).count() == 1:
+            return True
+            
+        # We check regular expressions defining ranges
+        # of IPs. If any range contains the request_ip
+        # the access is granted
+        for regex_ip_range in AllowedIP.objects.filter(ip_address__endswith="*"):
+            if re.match(regex_ip_range.ip_address.replace("*", ".*"), request_ip):
+                return True
+
+        # Otherwise access is not granted
+        return False
+
+    
     def process_request(self, request):
         """
         Check if the request is made form an allowed IP
@@ -93,24 +124,23 @@ class AdminPagesRestrictMiddleware(parent_class):
         restricted_request_uri = request.path.startswith(
             reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()
         )
+
+        # Update to use default deny msg in 403 response
+        denied_msg = "Access to admin is denied."
+        if hasattr(settings, 'ADMINRESTRICT_DENIED_MSG'):
+            denied_msg = settings.ADMINRESTRICT_DENIED_MSG
+            
+        if restricted_request_uri and request.method == 'GET':
+            if self.request_ip_is_allowed(request):
+                return None
+
+            if hasattr(settings, 'ADMINRESTRICT_BLOCK_GET') and settings.ADMINRESTRICT_BLOCK_GET:
+                return HttpResponseForbidden(denied_msg)
+            else:
+                return None
+        
         if restricted_request_uri and request.method == 'POST':
-
-            # AllowedIP table emty means access is always granted
-            if AllowedIP.objects.count() > 0:
-
-                # If there are wildcard IPs access is always granted
-                if AllowedIP.objects.filter(ip_address="*").count() == 0:
-
-                    request_ip = get_ip_address_from_request(request)
-
-                    # If the request_ip is in the AllowedIP the access
-                    # is granted
-                    if AllowedIP.objects.filter(ip_address=request_ip).count() == 0:
-
-                        # We check regular expressions defining ranges
-                        # of IPs. If any range contains the request_ip
-                        # the access is granted
-                        for regex_ip_range in AllowedIP.objects.filter(ip_address__endswith="*"):
-                            if re.match(regex_ip_range.ip_address.replace("*", ".*"), request_ip):
-                                return None
-                        return HttpResponseForbidden("Access to admin is denied.")
+            if not self.request_ip_is_allowed(request):
+                return HttpResponseForbidden(denied_msg)
+            else:
+                return None
