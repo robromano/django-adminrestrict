@@ -96,6 +96,13 @@ Create a `AllowedIP` entries ending with a "\*" to any IPs that start
 with the specified pattern. For example, adding `192.*` would allow
 addreses starting matching 192.*.*.* to login to the admin pages.
 
+### Adding allowed IP addresses using CIDR ranges
+
+Forthcoming
+### Adding allowed IP addresses using dynamic DNS
+
+Forthcoming
+
 ### Adding * to disable all restrictions
 
 Create a single `AllowedIP` record with "\*" as the IP address, to
@@ -104,6 +111,20 @@ modify settings.py and remove the middleware if you need to disable.
 
 Having at least one `AllowedIP` record with * as the IP address
 effectively disables all restrictions.
+
+## Advanced Settings
+
+There are a few advanced settings that can be engaged by adding them
+to your project's `settings.py` file:
+
+`ADMINRESTRICT_BLOCK_GET=True` will block all GET requests to admin urls.  By default, `adminrestrict` only blocks the POST method to block logins only, which is usually sufficient, because GET will redirect to the login page anyway. However, this additional mode might be useful in some scenarios where you don't even want to 
+
+
+`ADMINRESTRICT_ENABLE_CACHE=True` will cause `adminrestrict` to cache some of the IP addresses retrieved from the AllowedIP model to reduce read query load on your database.  When any update gets made to AllowedIP models, the cache is auto-refreshed. 
+
+`ADMINRESTRICT_DENIED_MSG="Custom denied msg."` will let you set the response body of the 403 HTTP 
+result when a request is denied. By default, the message is **"Access to admin is denied."**
+
 
 [build-status-image]: https://secure.travis-ci.org/robromano/django-adminrestrict.svg?branch=master
 [travis]: https://travis-ci.org/robromano/django-adminrestrict?branch=master

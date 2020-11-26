@@ -7,8 +7,18 @@ __copyright__ = "Copyright 2020 Robert C. Romano"
 
 
 import django
+import logging
 import re
 import socket
+import sys
+
+if (sys.version_info > (3, 0)):
+    import ipaddress
+else:
+    try:
+        import ipaddress
+    except ImportError as e:
+        logging.error("ipaddress module missing - CIDR ip address ranges not supported")
 
 if django.VERSION[:2] >= (1, 10):
     from django.urls import reverse
@@ -85,25 +95,47 @@ class AdminPagesRestrictMiddleware(parent_class):
     restricted IP addresses only. Everyone else gets 403.
     """
 
+    _invalidate_cache = True
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.disallow_get = getattr(settings, 'ADMINRESTRICT_BLOCK_GET', 
+            False)
+        self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG', 
+            "Access to admin is denied.")
+
+        self.cache = {}
+        self.update_allow_always()
+        self.logger = logging.getLogger(__name__)
+        self.ipaddress_module_loaded = 'ipaddress' in sys.modules
+
     def request_ip_is_allowed(self, request):
         """ Returns True if the request IP is allowed based on records in 
         the AllowedIP table, False otherwise."""
 
-        # AllowedIP table empty means access is always granted
-        if AllowedIP.objects.count() == 0:
-            return True
-        
-        # If there are wildcard IPs access is always granted
-        if AllowedIP.objects.filter(ip_address="*").count() == 1:
+        if self.allow_always:
             return True
         
         request_ip = get_ip_address_from_request(request)
                 
         # If the request_ip is in the AllowedIP the access
         # is granted
-        if AllowedIP.objects.filter(ip_address=request_ip).count() == 1:
+        if self.caching_enabled() and self.cache.get(request_ip, False):
             return True
-            
+        elif AllowedIP.objects.filter(ip_address=request_ip).count() == 1:
+            return True
+        
+        # Check CIDR ranges if any first
+        if self.ipaddress_module_loaded:
+            for cidr_range in AllowedIP.objects.filter(ip_address__regex="\/\d+$"):
+                try:
+                    net = ipaddress.ip_network(cidr_range.ip_address)
+                    ip = ipaddress.ip_address(str(request_ip))
+                    if ip in net:
+                        return True
+                except ValueError as e:
+                    logging.error(e)
+
         # We check regular expressions defining ranges
         # of IPs. If any range contains the request_ip
         # the access is granted
@@ -114,33 +146,50 @@ class AdminPagesRestrictMiddleware(parent_class):
         # Otherwise access is not granted
         return False
 
+    def caching_enabled(self):
+        return getattr(settings, 'ADMINRESTRICT_ENABLE_CACHE', 
+            False)
     
+    def update_allow_always(self):
+        # AllowedIP table empty means access is always granted
+        # AllowedIP table has one entry with just '*' means access is always granted        
+        self.allow_always = AllowedIP.objects.count() == 0 or \
+                AllowedIP.objects.filter(ip_address="*").count() == 1
+
+    def refresh_cache(self):
+        if not self.caching_enabled():
+            return
+
+        if AdminPagesRestrictMiddleware._invalidate_cache:
+            self.cache = {}
+            for ip in AllowedIP.objects.all():
+                self.cache[ip] = True
+            self.update_allow_always()
+            _invalidate_cache = False
+
     def process_request(self, request):
         """
         Check if the request is made form an allowed IP
         """
+        self.refresh_cache()
+
         # Section adjusted to restrict login to ?edit
         # (sing cms-toolbar-login)into DjangoCMS login.
         restricted_request_uri = request.path.startswith(
             reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()
         )
 
-        # Update to use default deny msg in 403 response
-        denied_msg = "Access to admin is denied."
-        if hasattr(settings, 'ADMINRESTRICT_DENIED_MSG'):
-            denied_msg = settings.ADMINRESTRICT_DENIED_MSG
-            
         if restricted_request_uri and request.method == 'GET':
             if self.request_ip_is_allowed(request):
                 return None
 
-            if hasattr(settings, 'ADMINRESTRICT_BLOCK_GET') and settings.ADMINRESTRICT_BLOCK_GET:
-                return HttpResponseForbidden(denied_msg)
+            if self.disallow_get:
+                return HttpResponseForbidden(self.denied_msg)
             else:
                 return None
         
         if restricted_request_uri and request.method == 'POST':
             if not self.request_ip_is_allowed(request):
-                return HttpResponseForbidden(denied_msg)
+                return HttpResponseForbidden(self.denied_msg)
             else:
                 return None

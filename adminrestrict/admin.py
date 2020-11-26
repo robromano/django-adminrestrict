@@ -9,6 +9,7 @@ __copyright__ = "Copyright 2021 Robert C. Romano"
 from django.contrib import admin
 from adminrestrict.models import AllowedIP
 
+import adminrestrict.signals
 
 class AllowedIPAdmin(admin.ModelAdmin):
     list_display = ('id', 'ip_address')

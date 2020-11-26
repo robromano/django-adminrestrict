@@ -5,8 +5,13 @@ adminrestrict tests
 __author__ = "Robert Romano"
 __copyright__ = "Copyright 2021 Robert C. Romano"
 
+import logging
+import sys
+from unittest import skipUnless
+
 from django.test import TestCase
 from django.contrib.auth.models import User
+
 try:
     from django.core.urlresolvers import reverse
 except ImportError as e:
@@ -15,8 +20,9 @@ except ImportError as e:
 from adminrestrict.models import AllowedIP
 
 
-class ModelTests(TestCase):
+class BasicTests(TestCase):
     def setUp(self):
+        logging.disable(logging.ERROR)
         self.user = User.objects.create_user(username="foo", password="bar")
 
     def test_disallow_get(self):
@@ -33,8 +39,9 @@ class ModelTests(TestCase):
         a.delete()
 
     def test_get_redirected(self):
+        admin_url = reverse('admin:adminrestrict_allowedip_add')
         a = AllowedIP.objects.create(ip_address="10.10.0.1")
-        resp = self.client.get("/admin/adminrestrict/allowedip/")
+        resp = self.client.get(admin_url)
         self.assertEqual(resp.status_code, 302)
         a.delete()
         
@@ -83,6 +90,36 @@ class ModelTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
+    @skipUnless(sys.version_info > (3, 0), "Python3 only")
+    def test_allowed_cidr_range(self):
+        a = AllowedIP.objects.create(ip_address="127.0.0.0/24")
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        self.assertEqual(resp.status_code, 200)
+        a.delete()
 
+    @skipUnless(sys.version_info > (3, 0), "Python3 only")
+    def test_bad_cidr_range(self):
+        a = AllowedIP.objects.create(ip_address="127.0.0.0/9100")
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        self.assertEqual(resp.status_code, 403)
+        a.delete()   
 
+    def test_allow_deny_ip_using_cache(self):
+        with self.settings(ADMINRESTRICT_ENABLE_CACHE=True):
+            a = AllowedIP.objects.create(ip_address="8.8.8.8")
+            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            self.assertEqual(resp.status_code, 403)
+            a.delete()
+            a = AllowedIP.objects.create(ip_address="*")
+            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            self.assertEqual(resp.status_code, 200)
+            a.delete()
+            a = AllowedIP.objects.create(ip_address="127*")
+            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            self.assertEqual(resp.status_code, 200)
+            a.delete()
+            a = AllowedIP.objects.create(ip_address="8.*")
+            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            self.assertEqual(resp.status_code, 403)
 
+ 
