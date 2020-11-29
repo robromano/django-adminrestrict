@@ -43,7 +43,7 @@ class BasicTests(TestCase):
         admin_url = reverse('admin:index')
         a = AllowedIP.objects.create(ip_address="10.10.0.1")
         resp = self.client.get(admin_url)
-        if DJANGO_VERSION < (1, 6, 0):
+        if DJANGO_VERSION < (1, 7, 0):
             self.assertEqual(resp.status_code, 200)
         else:
             self.assertEqual(resp.status_code, 302)
