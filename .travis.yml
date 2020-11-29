@@ -24,7 +24,7 @@ env:
 install:
   - pip install -q $DJANGO
   - pip install codecov
-#  - "if python --version 2>&1 | grep -q ' 2\.7\.'; then pip install ipaddress ; fi"
+  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install ipaddress; fi
 
 script:
   - PYTHONPATH=$PYTHONPATH:$PWD coverage run `which django-admin.py` test adminrestrict --settings=adminrestrict.test_settings
