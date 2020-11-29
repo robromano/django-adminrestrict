@@ -9,6 +9,7 @@ import logging
 import sys
 from unittest import skipUnless
 
+from django import VERSION as DJANGO_VERSION
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -39,10 +40,13 @@ class BasicTests(TestCase):
         a.delete()
 
     def test_get_redirected(self):
-        admin_url = reverse('admin:adminrestrict_allowedip_add')
+        admin_url = reverse('admin:index')
         a = AllowedIP.objects.create(ip_address="10.10.0.1")
         resp = self.client.get(admin_url)
-        self.assertEqual(resp.status_code, 302)
+        if DJANGO_VERSION < (1, 6, 0):
+            self.assertEqual(resp.status_code, 200)
+        else:
+            self.assertEqual(resp.status_code, 302)
         a.delete()
         
     def test_allow_all_if_empty(self):
@@ -50,8 +54,9 @@ class BasicTests(TestCase):
         self.assertIn(resp.status_code, [200, 302])
 
     def test_allowed_ip(self):
-        a = AllowedIP.objects.create(ip_address="127.0.0.1")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        a = AllowedIP.objects.create(ip_address="4.4.4.4")
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, 
+            follow=True, REMOTE_ADDR="4.4.4.4")
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
@@ -103,6 +108,21 @@ class BasicTests(TestCase):
         resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
         self.assertEqual(resp.status_code, 403)
         a.delete()   
+
+    def test_allow_private_ip(self):
+        a = AllowedIP.objects.create(ip_address="8.8.8.8")
+        with self.settings(ADMINRESTRICT_ALLOW_PRIVATE_IP=True):
+            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, 
+                follow=True, REMOTE_ADDR="192.168.1.1")
+            self.assertEqual(resp.status_code, 200)
+        a.delete()
+
+    def test_allow_domain_lookup(self):
+        a = AllowedIP.objects.create(ip_address="ns4.zdns.google.")
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, 
+                follow=True, REMOTE_ADDR="216.239.38.114")
+        self.assertEqual(resp.status_code, 200)
+        a.delete()
 
     def test_allow_deny_ip_using_cache(self):
         with self.settings(ADMINRESTRICT_ENABLE_CACHE=True):

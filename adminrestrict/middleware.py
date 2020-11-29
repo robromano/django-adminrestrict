@@ -14,6 +14,7 @@ import sys
 
 if (sys.version_info > (3, 0)):
     import ipaddress
+    unicode = lambda x: x
 else:
     try:
         import ipaddress
@@ -50,6 +51,21 @@ def is_valid_ip(ip_address):
     except:
         valid = False
     return valid
+
+def get_ip_address_for_fqdn(fqdn):
+    try:
+        return socket.gethostbyname(fqdn)
+    except:
+        return None
+
+def valid_fqdn(dn):
+    if dn.endswith('.'):
+        dn = dn[:-1]
+    if len(dn) < 1 or len(dn) > 253:
+        return False
+    ldh_re = re.compile('^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$',
+                        re.IGNORECASE)
+    return all(ldh_re.match(x) for x in dn.split('.'))
 
 
 def get_ip_address_from_request(request):
@@ -97,12 +113,14 @@ class AdminPagesRestrictMiddleware(parent_class):
 
     _invalidate_cache = True
 
-    def __init__(self, get_response):
+    def __init__(self, get_response=None):
         self.get_response = get_response
         self.disallow_get = getattr(settings, 'ADMINRESTRICT_BLOCK_GET', 
             False)
         self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG', 
             "Access to admin is denied.")
+        self.allow_private_ip = getattr(settings, 'ADMINRESTRICT_ALLOW_PRIVATE_IP', 
+            False)
 
         self.cache = {}
         self.update_allow_always()
@@ -117,7 +135,17 @@ class AdminPagesRestrictMiddleware(parent_class):
             return True
         
         request_ip = get_ip_address_from_request(request)
-                
+
+        # If the settings to allow RFC1918 private IPs is set,
+        # check if request ip is a private IP and allow if so
+        if self.ipaddress_module_loaded and self.allow_private_ip:
+            try:
+                ip = ipaddress.ip_address(unicode(request_ip))
+                if ip.is_private:
+                    return True
+            except ValueError as e:
+                logging.error(e)
+    
         # If the request_ip is in the AllowedIP the access
         # is granted
         if self.caching_enabled() and self.cache.get(request_ip, False):
@@ -141,6 +169,11 @@ class AdminPagesRestrictMiddleware(parent_class):
         # the access is granted
         for regex_ip_range in AllowedIP.objects.filter(ip_address__endswith="*"):
             if re.match(regex_ip_range.ip_address.replace("*", ".*"), request_ip):
+                return True
+
+        for domain in AllowedIP.objects.filter(ip_address__regex="^[a-zA-Z]"):
+            if valid_fqdn(domain.ip_address) and \
+                request_ip == get_ip_address_for_fqdn(domain.ip_address):
                 return True
 
         # Otherwise access is not granted

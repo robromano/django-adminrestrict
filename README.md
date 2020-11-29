@@ -35,6 +35,9 @@ You can install the latest stable package running:
 
     $ easy_install django-adminrestrict
 
+## Dependencies for Python 2.7.x
+
+`adminrestrict` has no dependencies when using Python 3.x.  Under Python 2.x, some features depend on the `ipaddress` module.  Install via `pip install ipaddress`.
 
 ## Development
 
@@ -98,7 +101,11 @@ addreses starting matching 192.*.*.* to login to the admin pages.
 
 ### Adding allowed IP addresses using CIDR ranges
 
-Forthcoming
+Create a `AllowedIP` entries denoted in CIDR notation, to indicate a range 
+of IP addresses that would be allowed to login/access the admin pages.
+For example, a CIDR range with a suffix indicating the number of bits 
+of the prefix, such as `192.0.2.0/24` for IPv4 would indicate an 
+entire subnet allowed to access the admin pages.
 ### Adding allowed IP addresses using dynamic DNS
 
 Forthcoming
@@ -125,6 +132,9 @@ to your project's `settings.py` file:
 `ADMINRESTRICT_DENIED_MSG="Custom denied msg."` will let you set the response body of the 403 HTTP 
 result when a request is denied. By default, the message is **"Access to admin is denied."**
 
+`ADMINRESTRICT_ALLOW_PRIVATE_IP=True` will allow all private IP addresses to access
+the admin pages, regardless of whether the request IP matches any pattern or IP address
+in the AllowedIP model.  Note: private IP addresses are those which comply with [RFC1918](https://tools.ietf.org/html/rfc1918).
 
 [build-status-image]: https://secure.travis-ci.org/robromano/django-adminrestrict.svg?branch=master
 [travis]: https://travis-ci.org/robromano/django-adminrestrict?branch=master
