@@ -91,13 +91,14 @@ section of the admin pages.
 
 Login to the admin pages and browse to the Adminrestrict app, and
 start creating recorded in the `AllowedIP` table.  Just type in the IP
-addresses and save records.
+addresses and save them. These will be single IPv4 addresses that are
+permitted to access the pages.
 
 ### Adding allowed IP addresses with wildcards
 
 Create a `AllowedIP` entries ending with a "\*" to any IPs that start
 with the specified pattern. For example, adding `192.*` would allow
-addreses starting matching 192.*.*.* to login to the admin pages.
+addreses starting matching 192.*.*.* to access the admin pages.
 
 ### Adding allowed IP addresses using CIDR ranges
 
@@ -106,9 +107,11 @@ of IP addresses that would be allowed to login/access the admin pages.
 For example, a CIDR range with a suffix indicating the number of bits 
 of the prefix, such as `192.0.2.0/24` for IPv4 would indicate an 
 entire subnet allowed to access the admin pages.
-### Adding allowed IP addresses using dynamic DNS
+### Adding allowed IP addresses using domain names
 
-Forthcoming
+Create `AllowedIP` records with domain names starting with a lower-case or upper-case character. These domain names' corresponding IP addresses
+will be allowed to access the admin pages. Recommended use case: dynamic 
+DNS domain names.
 
 ### Adding * to disable all restrictions
 
@@ -124,8 +127,7 @@ effectively disables all restrictions.
 There are a few advanced settings that can be engaged by adding them
 to your project's `settings.py` file:
 
-`ADMINRESTRICT_BLOCK_GET=True` will block all GET requests to admin urls.  By default, `adminrestrict` only blocks the POST method to block logins only, which is usually sufficient, because GET will redirect to the login page anyway. However, this additional mode might be useful in some scenarios where you don't even want to 
-
+`ADMINRESTRICT_BLOCK_GET=True` will block all GET requests to admin urls.  By default, `adminrestrict` only blocks the POST method to block logins only, which is usually sufficient, because GET will redirect to the login page anyway. 
 
 `ADMINRESTRICT_ENABLE_CACHE=True` will cause `adminrestrict` to cache some of the IP addresses retrieved from the AllowedIP model to reduce read query load on your database.  When any update gets made to AllowedIP models, the cache is auto-refreshed. 
 
