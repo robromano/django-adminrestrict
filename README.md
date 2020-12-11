@@ -8,9 +8,10 @@
 
 ## Overview
 
-``django-adminrestrict`` secures access to the Django admin pages. It works
-by blocking requests for the admin page path unless the requests come from specific IP addresses
-that you specify in a model.  
+``django-adminrestrict`` secures access to the Django admin pages. It works 
+by blocking requests for the admin page path unless the requests come from 
+specific IP addresses, address ranges or domains that you specify in 
+a model. 
 
 
 ## Requirements
