@@ -43,7 +43,7 @@ class BasicTests(TestCase):
         admin_url = reverse('admin:index')
         a = AllowedIP.objects.create(ip_address="10.10.0.1")
         resp = self.client.get(admin_url)
-        if DJANGO_VERSION < (1, 7, 0):
+        if DJANGO_VERSION < (1, 6, 0):
             self.assertEqual(resp.status_code, 200)
         else:
             self.assertEqual(resp.status_code, 302)
@@ -142,4 +142,23 @@ class BasicTests(TestCase):
             resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
             self.assertEqual(resp.status_code, 403)
 
- 
+    def test_combined(self):
+        AllowedIP.objects.create(ip_address="4.4.4.4")
+        AllowedIP.objects.create(ip_address="a*")
+        AllowedIP.objects.create(ip_address="168*")
+        AllowedIP.objects.create(ip_address="ns4.zdns.google.")
+
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, 
+            follow=True, REMOTE_ADDR="4.4.4.4")
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, 
+            follow=True, REMOTE_ADDR="168.0.0.1")
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, 
+            follow=True, REMOTE_ADDR="8.8.8.8")
+        self.assertEqual(resp.status_code, 403)
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, 
+            follow=True, REMOTE_ADDR="216.239.38.114")
+        self.assertEqual(resp.status_code, 200)
+
+        AllowedIP.objects.all().delete()

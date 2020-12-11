@@ -20,7 +20,7 @@ setup(
     long_description_content_type="text/markdown", 
     keywords='authentication, django, security',
     author='Robert Romano',
-    author_email='rromano@',
+    author_email='rromano@example.com',
     url='https://github.com/robromano/django-adminrestrict',
     license='MIT',
     package_dir={'adminrestrict': 'adminrestrict'},
