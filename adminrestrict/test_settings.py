@@ -1,4 +1,3 @@
-import os
 import django
 
 if django.VERSION[:2] >= (1, 3):
@@ -11,7 +10,7 @@ if django.VERSION[:2] >= (1, 3):
 else:
     DATABASE_ENGINE = 'sqlite3'
 
-if django.VERSION[:2] >= (1, 8):    
+if django.VERSION[:2] >= (1, 8):
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -63,6 +62,3 @@ INSTALLED_APPS = [
 SECRET_KEY = 'too-secret-for-test'
 
 LOGIN_REDIRECT_URL = '/admin'
-
-
-
