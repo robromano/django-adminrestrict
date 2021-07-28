@@ -115,11 +115,11 @@ class AdminPagesRestrictMiddleware(parent_class):
 
     def __init__(self, get_response=None):
         self.get_response = get_response
-        self.disallow_get = getattr(settings, 'ADMINRESTRICT_BLOCK_GET', 
+        self.disallow_get = getattr(settings, 'ADMINRESTRICT_BLOCK_GET',
             False)
-        self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG', 
+        self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG',
             "Access to admin is denied.")
-        self.allow_private_ip = getattr(settings, 'ADMINRESTRICT_ALLOW_PRIVATE_IP', 
+        self.allow_private_ip = getattr(settings, 'ADMINRESTRICT_ALLOW_PRIVATE_IP',
             False)
 
         self.cache = {}
@@ -128,12 +128,12 @@ class AdminPagesRestrictMiddleware(parent_class):
         self.ipaddress_module_loaded = 'ipaddress' in sys.modules
 
     def request_ip_is_allowed(self, request):
-        """ Returns True if the request IP is allowed based on records in 
+        """ Returns True if the request IP is allowed based on records in
         the AllowedIP table, False otherwise."""
 
         if self.allow_always:
             return True
-        
+
         request_ip = get_ip_address_from_request(request)
 
         # If the settings to allow RFC1918 private IPs is set,
@@ -145,14 +145,14 @@ class AdminPagesRestrictMiddleware(parent_class):
                     return True
             except ValueError as e:
                 logging.error(e)
-    
+
         # If the request_ip is in the AllowedIP the access
         # is granted
         if self.caching_enabled() and self.cache.get(request_ip, False):
             return True
         elif AllowedIP.objects.filter(ip_address=request_ip).count() == 1:
             return True
-        
+
         # Check CIDR ranges if any first
         if self.ipaddress_module_loaded:
             for cidr_range in AllowedIP.objects.filter(ip_address__regex="\/\d+$"):
@@ -180,25 +180,24 @@ class AdminPagesRestrictMiddleware(parent_class):
         return False
 
     def caching_enabled(self):
-        return getattr(settings, 'ADMINRESTRICT_ENABLE_CACHE', 
+        return getattr(settings, 'ADMINRESTRICT_ENABLE_CACHE',
             False)
-    
+
     def update_allow_always(self):
         # AllowedIP table empty means access is always granted
-        # AllowedIP table has one entry with just '*' means access is always granted        
+        # AllowedIP table has one entry with just '*' means access is always granted
         self.allow_always = AllowedIP.objects.count() == 0 or \
                 AllowedIP.objects.filter(ip_address="*").count() == 1
 
     def refresh_cache(self):
-        if not self.caching_enabled():
-            return
-
-        if AdminPagesRestrictMiddleware._invalidate_cache:
+        if self.caching_enabled() and AdminPagesRestrictMiddleware._invalidate_cache:
             self.cache = {}
             for ip in AllowedIP.objects.all():
                 self.cache[ip] = True
             self.update_allow_always()
-            _invalidate_cache = False
+            AdminPagesRestrictMiddleware._invalidate_cache = False
+        elif self.allow_always:
+            self.update_allow_always()
 
     def process_request(self, request):
         """
@@ -220,7 +219,7 @@ class AdminPagesRestrictMiddleware(parent_class):
                 return HttpResponseForbidden(self.denied_msg)
             else:
                 return None
-        
+
         if restricted_request_uri and request.method == 'POST':
             if not self.request_ip_is_allowed(request):
                 return HttpResponseForbidden(self.denied_msg)

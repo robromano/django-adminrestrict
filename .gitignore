@@ -1,4 +1,4 @@
-django_axes.egg-info
+*.egg-info
 *.pyc
 build
 dist
@@ -10,3 +10,12 @@ examples/media/
 examples/static/
 examples/example/local_settings.py
 *~
+
+# virtualenvs
+env
+venv
+.env
+
+# ide folders
+.vscode
+.idea
