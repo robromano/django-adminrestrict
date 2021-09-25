@@ -95,6 +95,16 @@ start creating recorded in the `AllowedIP` table.  Just type in the IP
 addresses and save them. These will be single IPv4 addresses that are
 permitted to access the pages.
 
+
+### Managing allowed IP addresses from command line
+
+Use the management commands to add and remove allowed IP addresses from the command line:
+
+``python manage.py addadminip 10.10.10.10``
+
+``python manage.py removeadminip 10.10.10.10``
+
+
 ### Adding allowed IP addresses with wildcards
 
 Create a `AllowedIP` entries ending with a "\*" to any IPs that start
