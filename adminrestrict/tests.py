@@ -12,6 +12,7 @@ from unittest import skipUnless
 from django import VERSION as DJANGO_VERSION
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 try:
     from django.core.urlresolvers import reverse
@@ -170,3 +171,25 @@ class BasicTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         AllowedIP.objects.all().delete()
+
+
+class ManagementTests(TestCase):
+    def setUp(self):
+        logging.disable(logging.ERROR)
+
+    def test_allow_command(self):
+        self.assertFalse(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        call_command('addadminip', '10.10.10.1')
+        self.assertTrue(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        resp = self.client.post("/admin/")
+        self.assertEqual(resp.status_code, 403)
+
+    def test_remove_command(self):
+        AllowedIP.objects.create(ip_address="4.4.4.4")
+        AllowedIP.objects.create(ip_address="10.10.10.1")
+        self.assertTrue(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        call_command('removeadminip', '10.10.10.1')
+        self.assertFalse(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        resp = self.client.post("/admin/")
+        self.assertEqual(resp.status_code, 403)
+
