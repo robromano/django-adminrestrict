@@ -172,6 +172,28 @@ class BasicTests(TestCase):
 
         AllowedIP.objects.all().delete()
 
+    def test_ip6(self):
+        AllowedIP.objects.create(ip_address="::1")
+        AllowedIP.objects.create(ip_address="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
+            follow=True, REMOTE_ADDR="::1")
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
+            follow=True, REMOTE_ADDR="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
+            follow=True, REMOTE_ADDR="2001:0db8:85a4:0000:0000:8a2e:0370:7334")
+        self.assertEqual(resp.status_code, 403)
+
+    def test_ip6_cidr(self):
+        AllowedIP.objects.create(ip_address="2001:0db8:85a3:0000::/64")
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
+            follow=True, REMOTE_ADDR="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
+            follow=True, REMOTE_ADDR="2001:0db8:85a4:0000:0000:8a2e:0370:7334")
+        self.assertEqual(resp.status_code, 403)
+
 
 class ManagementTests(TestCase):
     def setUp(self):

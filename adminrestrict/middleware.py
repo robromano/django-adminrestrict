@@ -45,11 +45,14 @@ def is_valid_ip(ip_address):
     """
     Check Validity of an IP address
     """
-    valid = True
-    try:
-        socket.inet_aton(ip_address.strip())
-    except:
-        valid = False
+    valid = False
+    for family in (socket.AF_INET, socket.AF_INET6):
+        try:
+            socket.inet_pton(family, ip_address.strip())
+            valid = True
+            break
+        except:
+            continue
     return valid
 
 def get_ip_address_for_fqdn(fqdn):
