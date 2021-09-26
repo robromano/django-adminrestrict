@@ -116,7 +116,7 @@ addreses starting matching 192.*.*.* to access the admin pages.
 Create a `AllowedIP` entries denoted in CIDR notation, to indicate a range 
 of IP addresses that would be allowed to login/access the admin pages.
 For example, a CIDR range with a suffix indicating the number of bits 
-of the prefix, such as `192.0.2.0/24` for IPv4 would indicate an 
+of the prefix, such as `192.0.2.0/24` for IPv4 or `2001:0db8:85a3:0000::/64` for IPv6 would indicate an 
 entire subnet allowed to access the admin pages.
 ### Adding allowed IP addresses using domain names
 
