@@ -194,6 +194,10 @@ class BasicTests(TestCase):
             follow=True, REMOTE_ADDR="2001:0db8:85a4:0000:0000:8a2e:0370:7334")
         self.assertEqual(resp.status_code, 403)
 
+    async def test_async_middleware(self):
+        resp = await self.async_client.get("/admin/")
+        self.assertIn(resp.status_code, [200, 302])
+
 
 class ManagementTests(TestCase):
     def setUp(self):
