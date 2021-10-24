@@ -117,7 +117,7 @@ class AdminPagesRestrictMiddleware(parent_class):
     _invalidate_cache = True
 
     def __init__(self, get_response=None):
-        self.get_response = get_response
+        super().__init__(get_response)
         self.disallow_get = getattr(settings, 'ADMINRESTRICT_BLOCK_GET',
             False)
         self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG',
@@ -126,7 +126,7 @@ class AdminPagesRestrictMiddleware(parent_class):
             False)
 
         self.cache = {}
-        self.update_allow_always()
+        self.allow_always = True
         self.logger = logging.getLogger(__name__)
         self.ipaddress_module_loaded = 'ipaddress' in sys.modules
 
