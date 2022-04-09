@@ -12,6 +12,8 @@ import re
 import socket
 import sys
 
+from django.shortcuts import render
+
 if (sys.version_info > (3, 0)):
     import ipaddress
     unicode = lambda x: x
@@ -122,6 +124,7 @@ class AdminPagesRestrictMiddleware(parent_class):
             False)
         self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG',
             "Access to admin is denied.")
+        self.denied_template = getattr(settings, 'ADMINRESTRICT_TEMPLATE', '')
         self.allow_private_ip = getattr(settings, 'ADMINRESTRICT_ALLOW_PRIVATE_IP',
             False)
 
@@ -218,13 +221,17 @@ class AdminPagesRestrictMiddleware(parent_class):
             if self.request_ip_is_allowed(request):
                 return None
 
-            if self.disallow_get:
+            if self.disallow_get and self.denied_template:
+                return render(request, self.denied_template, {})
+            elif self.disallow_get:
                 return HttpResponseForbidden(self.denied_msg)
             else:
                 return None
 
         if restricted_request_uri and request.method == 'POST':
-            if not self.request_ip_is_allowed(request):
+            if not self.request_ip_is_allowed(request) and self.denied_template:
+                return HttpResponseForbidden(self.denied_msg)
+            elif not self.request_ip_is_allowed(request):
                 return HttpResponseForbidden(self.denied_msg)
             else:
                 return None

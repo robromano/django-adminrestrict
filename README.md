@@ -145,6 +145,8 @@ to your project's `settings.py` file:
 `ADMINRESTRICT_DENIED_MSG="Custom denied msg."` will let you set the response body of the 403 HTTP 
 result when a request is denied. By default, the message is **"Access to admin is denied."**
 
+`ADMINRESTRICT_TEMPLATE="<filename>.html"` gives you the capability to render a custom 403 HTTP page when a request is denied. By default, this is blank. The html file specified needs to be under a template directory.
+
 `ADMINRESTRICT_ALLOW_PRIVATE_IP=True` will allow all private IP addresses to access
 the admin pages, regardless of whether the request IP matches any pattern or IP address
 in the AllowedIP model.  Note: private IP addresses are those which comply with [RFC1918](https://tools.ietf.org/html/rfc1918).
