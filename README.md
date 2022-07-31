@@ -36,9 +36,9 @@ You can install the latest stable package running:
 
     $ easy_install django-adminrestrict
 
-## Dependencies for Python 2.7.x
+## Python 3.0 Only
 
-`adminrestrict` has no dependencies when using Python 3.x.  Under Python 2.x, some features depend on the `ipaddress` module.  Install via `pip install ipaddress`.
+`adminrestrict` requires Python 3.x and no longer supports Python 2.x.
 
 ## Development
 
