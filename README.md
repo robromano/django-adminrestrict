@@ -1,6 +1,6 @@
 # Django Admin Restrict
 
-[![build-status-image]][travis]
+[![Build](https://github.com/robromano/django-adminrestrict/actions/workflows/python-package.yml/badge.svg?branch=master)](https://github.com/robromano/django-adminrestrict/actions/workflows/python-package.yml)
 [![coverage-status-image]][codecov]
 [![pypi-version]][pypi]
 
@@ -36,9 +36,9 @@ You can install the latest stable package running:
 
     $ easy_install django-adminrestrict
 
-## Dependencies for Python 2.7.x
+## Python 3.x Only
 
-`adminrestrict` has no dependencies when using Python 3.x.  Under Python 2.x, some features depend on the `ipaddress` module.  Install via `pip install ipaddress`.
+`adminrestrict` requires Python 3.x and no longer supports Python 2.x.
 
 ## Development
 

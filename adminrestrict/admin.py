@@ -12,7 +12,7 @@ from adminrestrict.models import AllowedIP
 import adminrestrict.signals
 
 class AllowedIPAdmin(admin.ModelAdmin):
-    list_display = ('id', 'ip_address')
+    list_display = ('ip_address',)
 
 admin.site.register(AllowedIP, AllowedIPAdmin)
 

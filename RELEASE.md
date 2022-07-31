@@ -1,5 +1,13 @@
 #  Release Notes
 
+## v3.1 - Django 4 Support + Python 3 Ony
+
+* No longer support Python 2.x.
+* Async support for Django async added
+* Django 4 support added
+
+Release date 2022-07-31
+
 ## v3.0 - New options: block GETs also, allow private IPs, and support for domain names
 
 * New feature (setting `ADMINRESTRICT_BLOCK_GET = True`) to enable this middleware to filter access for ALL accesses to admin page URLs (GET or POST).

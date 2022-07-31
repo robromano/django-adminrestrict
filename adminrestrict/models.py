@@ -13,7 +13,7 @@ class AllowedIP(models.Model):
     """
     Represents a whitelisted IP address who can access admin pages.
     """
-    ip_address = models.CharField(max_length=512)
+    ip_address = models.CharField(max_length=512, primary_key=True)
 
     def __unicode__(self):
         return u'%s' % self.ip_address
