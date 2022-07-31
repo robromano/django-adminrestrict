@@ -1,6 +1,5 @@
 # Django Admin Restrict
 
-[![build-status-image]][travis]
 [![coverage-status-image]][codecov]
 [![pypi-version]][pypi]
 
