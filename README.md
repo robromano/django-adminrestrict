@@ -36,7 +36,7 @@ You can install the latest stable package running:
 
     $ easy_install django-adminrestrict
 
-## Python 3.0 Only
+## Python 3.x Only
 
 `adminrestrict` requires Python 3.x and no longer supports Python 2.x.
 
