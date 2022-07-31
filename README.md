@@ -1,5 +1,6 @@
 # Django Admin Restrict
 
+[![Build](https://github.com/robromano/django-adminrestrict/actions/workflows/python-package.yml/badge.svg?branch=master)](https://github.com/robromano/django-adminrestrict/actions/workflows/python-package.yml)
 [![coverage-status-image]][codecov]
 [![pypi-version]][pypi]
 
