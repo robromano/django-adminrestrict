@@ -124,7 +124,7 @@ class AdminPagesRestrictMiddleware(parent_class):
             False)
         self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG',
             "Access to admin is denied.")
-        self.denied_template = getattr(settings, 'ADMINRESTRICT_TEMPLATE', '403.html')
+        self.denied_template = getattr(settings, 'ADMINRESTRICT_TEMPLATE', '')
         self.allow_private_ip = getattr(settings, 'ADMINRESTRICT_ALLOW_PRIVATE_IP',
             False)
 
