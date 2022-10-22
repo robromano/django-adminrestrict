@@ -94,9 +94,12 @@ class BasicTests(TestCase):
         DENIED_TEMPLATE = b"403.html!"
         a = AllowedIP.objects.create(ip_address="16*")
         with self.settings(ADMINRESTRICT_TEMPLATE=DENIED_TEMPLATE):
-            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
-            self.assertEqual(resp.status_code, 403)
-            self.assertEqual(resp.content, DENIED_TEMPLATE)
+            post_response = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            self.assertEqual(post_response.status_code, 403)
+            self.assertEqual(post_response.content, DENIED_TEMPLATE)
+            get_response = self.client.get("/admin/")
+            self.assertEqual(get_response.status_code, 403)
+            self.assertEqual(get_response.content, DENIED_TEMPLATE)
         a.delete()
 
     def test_allow_all(self):
