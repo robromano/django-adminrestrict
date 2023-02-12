@@ -15,12 +15,5 @@ class AllowedIP(models.Model):
     """
     ip_address = models.CharField(max_length=512, primary_key=True)
 
-    def __unicode__(self):
-        return u'%s' % self.ip_address
-
-
-
-
-
-
-
+    def __str__(self):
+        return f'{self.ip_address}'
