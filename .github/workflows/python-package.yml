@@ -79,12 +79,19 @@ jobs:
           - django-version: "3.2.14"
             python-version: "3.10"
           # Django 4.0
-          - django-version: "4.0.6"
+          - django-version: "4.0.9"
             python-version: "3.8"
-          - django-version: "4.0.6"
+          - django-version: "4.0.9"
             python-version: "3.9"
-          - django-version: "4.0.6"
+          - django-version: "4.0.9"
             python-version: "3.10"
+          # Django 4.1
+          - django-version: "4.1.6"
+            python-version: "3.8"
+          - django-version: "4.1.6"
+            python-version: "3.9"
+          - django-version: "4.1.6"
+            python-version: "3.10"          
 
     steps:
     - uses: actions/checkout@v3
