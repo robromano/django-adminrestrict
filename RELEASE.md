@@ -1,6 +1,6 @@
 #  Release Notes
 
-## v3.1 - Django 4 Support + Python 3 Ony
+## v3.1 - Django 4 Support + Python 3 Only
 
 * No longer support Python 2.x.
 * Async support for Django async added
