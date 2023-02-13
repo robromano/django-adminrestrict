@@ -17,4 +17,4 @@ class AllowedIP(models.Model):
     ip_address = models.CharField(max_length=512, primary_key=True)
 
     def __str__(self):
-        return f'{self.ip_address}'
+        return '%s' % self.ip_address
