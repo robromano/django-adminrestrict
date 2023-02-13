@@ -149,6 +149,9 @@ result when a request is denied. By default, the message is **"Access to admin i
 the admin pages, regardless of whether the request IP matches any pattern or IP address
 in the AllowedIP model.  Note: private IP addresses are those which comply with [RFC1918](https://tools.ietf.org/html/rfc1918).
 
+`ADMINRESTRICT_PRIVATE_IP_PREFIXES` will allow overriding the default list of private IP prefixes that
+is used to identify an IP address as a private IP address. Defaults to `('10.', '172.', '192.', '127.')`
+
 [build-status-image]: https://secure.travis-ci.org/robromano/django-adminrestrict.svg?branch=master
 [travis]: https://travis-ci.org/robromano/django-adminrestrict?branch=master
 [pypi-version]: https://badge.fury.io/py/django-adminrestrict.svg

@@ -8,4 +8,3 @@ except:
 
 def get_version():
     return __version__
-

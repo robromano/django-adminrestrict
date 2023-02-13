@@ -6,8 +6,8 @@ if VERSION[0] < 2:
     try:
         from django.conf.urls import patterns
         urlpatterns = patterns('',
-            url(r'^admin/', include(admin.site.urls)),
-        )
+                               url(r'^admin/', include(admin.site.urls)),
+                               )
     except ImportError:
         urlpatterns = [
             url(r'^admin/', include(admin.site.urls))
@@ -17,7 +17,7 @@ else:
         from django.urls import include, re_path
         urlpatterns = [
             re_path('admin/', admin.site.urls)
-        ]        
+        ]
     else:
         from django.conf.urls import url, include
         from django.urls import path

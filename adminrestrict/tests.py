@@ -51,32 +51,36 @@ class BasicTests(TestCase):
         a.delete()
 
     def test_allow_all_if_empty(self):
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"})
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"})
         self.assertIn(resp.status_code, [200, 302])
 
     def test_allowed_ip(self):
         a = AllowedIP.objects.create(ip_address="4.4.4.4")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="4.4.4.4")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="4.4.4.4")
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
     def test_allowed_wildcard(self):
         a = AllowedIP.objects.create(ip_address="127.0*")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
     def test_blocked_no_wildcard_match(self):
         a = AllowedIP.objects.create(ip_address="16*")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 403)
         a.delete()
 
     def test_default_denied_msg(self):
         DENIED_MSG = b"Access to admin is denied."
         a = AllowedIP.objects.create(ip_address="16*")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.content, DENIED_MSG)
         a.delete()
@@ -85,70 +89,97 @@ class BasicTests(TestCase):
         DENIED_MSG = b"denied!"
         a = AllowedIP.objects.create(ip_address="16*")
         with self.settings(ADMINRESTRICT_DENIED_MSG=DENIED_MSG):
-            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            resp = self.client.post(
+                "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
             self.assertEqual(resp.status_code, 403)
             self.assertEqual(resp.content, DENIED_MSG)
         a.delete()
 
     def test_allow_all(self):
         a = AllowedIP.objects.create(ip_address="*")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
     @skipUnless(sys.version_info > (3, 0), "Python3 only")
     def test_allowed_cidr_range(self):
         a = AllowedIP.objects.create(ip_address="127.0.0.0/24")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
     @skipUnless(sys.version_info > (3, 0), "Python3 only")
     def test_bad_cidr_range(self):
         a = AllowedIP.objects.create(ip_address="127.0.0.0/9100")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 403)
         a.delete()
 
     def test_allow_private_ip(self):
         a = AllowedIP.objects.create(ip_address="8.8.8.8")
         with self.settings(ADMINRESTRICT_ALLOW_PRIVATE_IP=True):
-            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-                follow=True, REMOTE_ADDR="192.168.1.1")
+            resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                    follow=True, REMOTE_ADDR="192.168.1.1")
             self.assertEqual(resp.status_code, 200)
+        a.delete()
+
+    def test_disallow_custom_private_ip(self):
+        a = AllowedIP.objects.create(ip_address="8.8.8.8")
+        with self.settings(ADMINRESTRICT_PRIVATE_IP_PREFIXES=('11.', '172.', '192.', '127.')):
+            resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                    follow=True, REMOTE_ADDR="11.0.0.1")
+            self.assertEqual(resp.status_code, 403)
+        a.delete()
+
+    def test_allow_custom_private_ip(self):
+        a = AllowedIP.objects.create(ip_address="10.10.0.1")
+        with self.settings(ADMINRESTRICT_PRIVATE_IP_PREFIXES=('11.', '172.', '192.', '127.')):
+            with self.settings(ADMINRESTRICT_ALLOW_PRIVATE_IP=True):
+                resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                     follow=True, HTTP_X_FORWARDED_FOR="11.0.0.1,10.10.1.1")
+                self.assertEqual(resp.status_code, 200)
         a.delete()
 
     def test_allow_domain_lookup(self):
         a = AllowedIP.objects.create(ip_address="ns4.zdns.google.")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-                follow=True, REMOTE_ADDR="216.239.38.114")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="216.239.38.114")
         self.assertEqual(resp.status_code, 200)
         a.delete()
 
     def test_allow_deny_ip_using_cache(self):
         with self.settings(ADMINRESTRICT_ENABLE_CACHE=True):
             a = AllowedIP.objects.create(ip_address="8.8.8.8")
-            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            resp = self.client.post(
+                "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
             self.assertEqual(resp.status_code, 403)
             a.delete()
             a = AllowedIP.objects.create(ip_address="*")
-            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            resp = self.client.post(
+                "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
             self.assertEqual(resp.status_code, 200)
             a.delete()
             a = AllowedIP.objects.create(ip_address="127*")
-            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            resp = self.client.post(
+                "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
             self.assertEqual(resp.status_code, 200)
             a.delete()
             a = AllowedIP.objects.create(ip_address="8.*")
-            resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+            resp = self.client.post(
+                "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
             self.assertEqual(resp.status_code, 403)
 
     def test_add_first_restriction(self):
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 200)
 
         AllowedIP.objects.create(ip_address="8.8.8.8")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"}, follow=True)
+        resp = self.client.post(
+            "/admin/", data={'username': "foo", 'password': "bar"}, follow=True)
         self.assertEqual(resp.status_code, 403)
 
     def test_combined(self):
@@ -157,41 +188,42 @@ class BasicTests(TestCase):
         AllowedIP.objects.create(ip_address="168*")
         AllowedIP.objects.create(ip_address="ns4.zdns.google.")
 
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="4.4.4.4")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="4.4.4.4")
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="168.0.0.1")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="168.0.0.1")
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="8.8.8.8")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="8.8.8.8")
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="216.239.38.114")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="216.239.38.114")
         self.assertEqual(resp.status_code, 200)
 
         AllowedIP.objects.all().delete()
 
     def test_ip6(self):
         AllowedIP.objects.create(ip_address="::1")
-        AllowedIP.objects.create(ip_address="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="::1")
+        AllowedIP.objects.create(
+            ip_address="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="::1")
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="2001:0db8:85a4:0000:0000:8a2e:0370:7334")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="2001:0db8:85a4:0000:0000:8a2e:0370:7334")
         self.assertEqual(resp.status_code, 403)
 
     def test_ip6_cidr(self):
         AllowedIP.objects.create(ip_address="2001:0db8:85a3:0000::/64")
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="2001:0db8:85a3:0000:0000:8a2e:0370:7334")
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.post("/admin/", data={'username':"foo", 'password':"bar"},
-            follow=True, REMOTE_ADDR="2001:0db8:85a4:0000:0000:8a2e:0370:7334")
+        resp = self.client.post("/admin/", data={'username': "foo", 'password': "bar"},
+                                follow=True, REMOTE_ADDR="2001:0db8:85a4:0000:0000:8a2e:0370:7334")
         self.assertEqual(resp.status_code, 403)
 
     async def test_async_middleware(self):
@@ -204,18 +236,21 @@ class ManagementTests(TestCase):
         logging.disable(logging.ERROR)
 
     def test_allow_command(self):
-        self.assertFalse(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        self.assertFalse(AllowedIP.objects.filter(
+            ip_address='10.10.10.1').exists())
         call_command('addadminip', '10.10.10.1')
-        self.assertTrue(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        self.assertTrue(AllowedIP.objects.filter(
+            ip_address='10.10.10.1').exists())
         resp = self.client.post("/admin/")
         self.assertEqual(resp.status_code, 403)
 
     def test_remove_command(self):
         AllowedIP.objects.create(ip_address="4.4.4.4")
         AllowedIP.objects.create(ip_address="10.10.10.1")
-        self.assertTrue(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        self.assertTrue(AllowedIP.objects.filter(
+            ip_address='10.10.10.1').exists())
         call_command('removeadminip', '10.10.10.1')
-        self.assertFalse(AllowedIP.objects.filter(ip_address='10.10.10.1').exists())
+        self.assertFalse(AllowedIP.objects.filter(
+            ip_address='10.10.10.1').exists())
         resp = self.client.post("/admin/")
         self.assertEqual(resp.status_code, 403)
-

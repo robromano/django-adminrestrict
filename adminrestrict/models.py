@@ -9,6 +9,7 @@ __copyright__ = "Copyright 2021 Robert C. Romano"
 from django.db import models
 from django.conf import settings
 
+
 class AllowedIP(models.Model):
     """
     Represents a whitelisted IP address who can access admin pages.

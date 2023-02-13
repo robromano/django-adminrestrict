@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from adminrestrict.models import AllowedIP
 from adminrestrict.middleware import AdminPagesRestrictMiddleware
 
+
 @receiver(post_save, sender=AllowedIP)
 def allowed_ip_saved(sender, instance, created, **kwargs):
     AdminPagesRestrictMiddleware._invalidate_cache = True
@@ -19,4 +20,3 @@ def allowed_ip_saved(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=AllowedIP)
 def allowed_ip_deleted(sender, instance, using, **kwargs):
     AdminPagesRestrictMiddleware._invalidate_cache = True
-

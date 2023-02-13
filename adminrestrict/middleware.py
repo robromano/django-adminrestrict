@@ -14,12 +14,13 @@ import sys
 
 if (sys.version_info > (3, 0)):
     import ipaddress
-    unicode = lambda x: x
+    def unicode(x): return x
 else:
     try:
         import ipaddress
     except ImportError as e:
-        logging.error("ipaddress module missing - CIDR ip address ranges not supported")
+        logging.error(
+            "ipaddress module missing - CIDR ip address ranges not supported")
 
 if django.VERSION[:2] >= (1, 10):
     from django.urls import reverse
@@ -55,11 +56,13 @@ def is_valid_ip(ip_address):
             continue
     return valid
 
+
 def get_ip_address_for_fqdn(fqdn):
     try:
         return socket.gethostbyname(fqdn)
     except:
         return None
+
 
 def valid_fqdn(dn):
     if dn.endswith('.'):
@@ -71,20 +74,26 @@ def valid_fqdn(dn):
     return all(ldh_re.match(x) for x in dn.split('.'))
 
 
+def is_private_rfc_1918_ip(ip: str):
+    """Returns true if IP is determined to be a private RFC1918 address."""
+    private_ip_prefixes = getattr(settings, 'ADMINRESTRICT_PRIVATE_IP_PREFIXES',
+                                  ('10.', '172.', '192.', '127.'))
+    return ip.startswith(private_ip_prefixes)
+
+
 def get_ip_address_from_request(request):
     """
     Makes the best attempt to get the client's real IP or return the loopback
     """
-    PRIVATE_IPS_PREFIX = ('10.', '172.', '192.', '127.')
     ip_address = ''
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
     if x_forwarded_for and ',' not in x_forwarded_for:
-        if not x_forwarded_for.startswith(PRIVATE_IPS_PREFIX) and is_valid_ip(x_forwarded_for):
+        if not is_private_rfc_1918_ip(x_forwarded_for) and is_valid_ip(x_forwarded_for):
             ip_address = x_forwarded_for.strip()
     else:
         ips = [ip.strip() for ip in x_forwarded_for.split(',')]
         for ip in ips:
-            if ip.startswith(PRIVATE_IPS_PREFIX):
+            if is_private_rfc_1918_ip(ip):
                 continue
             elif not is_valid_ip(ip):
                 continue
@@ -94,17 +103,17 @@ def get_ip_address_from_request(request):
     if not ip_address:
         x_real_ip = request.META.get('HTTP_X_REAL_IP', '')
         if x_real_ip:
-            if not x_real_ip.startswith(PRIVATE_IPS_PREFIX) and is_valid_ip(x_real_ip):
+            if not is_private_rfc_1918_ip(x_real_ip) and is_valid_ip(x_real_ip):
                 ip_address = x_real_ip.strip()
     if not ip_address:
         remote_addr = request.META.get('REMOTE_ADDR', '')
         if remote_addr:
-            if not remote_addr.startswith(PRIVATE_IPS_PREFIX) and is_valid_ip(remote_addr):
+            if not is_private_rfc_1918_ip(remote_addr) and is_valid_ip(remote_addr):
                 ip_address = remote_addr.strip()
-            if remote_addr.startswith(PRIVATE_IPS_PREFIX) and is_valid_ip(remote_addr):
+            if is_private_rfc_1918_ip(remote_addr) and is_valid_ip(remote_addr):
                 ip_address = remote_addr.strip()
     if not ip_address:
-            ip_address = '127.0.0.1'
+        ip_address = '127.0.0.1'
     return ip_address
 
 
@@ -119,11 +128,11 @@ class AdminPagesRestrictMiddleware(parent_class):
     def __init__(self, get_response=None):
         super().__init__(get_response)
         self.disallow_get = getattr(settings, 'ADMINRESTRICT_BLOCK_GET',
-            False)
+                                    False)
         self.denied_msg = getattr(settings, 'ADMINRESTRICT_DENIED_MSG',
-            "Access to admin is denied.")
+                                  "Access to admin is denied.")
         self.allow_private_ip = getattr(settings, 'ADMINRESTRICT_ALLOW_PRIVATE_IP',
-            False)
+                                        False)
 
         self.cache = {}
         self.allow_always = True
@@ -176,7 +185,7 @@ class AdminPagesRestrictMiddleware(parent_class):
 
         for domain in AllowedIP.objects.filter(ip_address__regex="^[a-zA-Z]"):
             if valid_fqdn(domain.ip_address) and \
-                request_ip == get_ip_address_for_fqdn(domain.ip_address):
+                    request_ip == get_ip_address_for_fqdn(domain.ip_address):
                 return True
 
         # Otherwise access is not granted
@@ -184,13 +193,13 @@ class AdminPagesRestrictMiddleware(parent_class):
 
     def caching_enabled(self):
         return getattr(settings, 'ADMINRESTRICT_ENABLE_CACHE',
-            False)
+                       False)
 
     def update_allow_always(self):
         # AllowedIP table empty means access is always granted
         # AllowedIP table has one entry with just '*' means access is always granted
         self.allow_always = AllowedIP.objects.count() == 0 or \
-                AllowedIP.objects.filter(ip_address="*").count() == 1
+            AllowedIP.objects.filter(ip_address="*").count() == 1
 
     def refresh_cache(self):
         if self.caching_enabled() and AdminPagesRestrictMiddleware._invalidate_cache:
@@ -211,7 +220,8 @@ class AdminPagesRestrictMiddleware(parent_class):
         # Section adjusted to restrict login to ?edit
         # (sing cms-toolbar-login)into DjangoCMS login.
         restricted_request_uri = request.path.startswith(
-            reverse('admin:index') or "cms-toolbar-login" in request.build_absolute_uri()
+            reverse(
+                'admin:index') or "cms-toolbar-login" in request.build_absolute_uri()
         )
 
         if restricted_request_uri and request.method == 'GET':
