@@ -11,16 +11,8 @@ import logging
 import re
 import socket
 import sys
+import ipaddress
 
-if (sys.version_info > (3, 0)):
-    import ipaddress
-    def unicode(x): return x
-else:
-    try:
-        import ipaddress
-    except ImportError as e:
-        logging.error(
-            "ipaddress module missing - CIDR ip address ranges not supported")
 
 if django.VERSION[:2] >= (1, 10):
     from django.urls import reverse
@@ -152,7 +144,7 @@ class AdminPagesRestrictMiddleware(parent_class):
         # check if request ip is a private IP and allow if so
         if self.ipaddress_module_loaded and self.allow_private_ip:
             try:
-                ip = ipaddress.ip_address(unicode(request_ip))
+                ip = ipaddress.ip_address(request_ip)
                 if ip.is_private:
                     return True
             except ValueError as e:
