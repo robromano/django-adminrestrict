@@ -61,7 +61,7 @@ def valid_fqdn(dn):
         dn = dn[:-1]
     if len(dn) < 1 or len(dn) > 253:
         return False
-    ldh_re = re.compile('^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$',
+    ldh_re = re.compile(r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$",
                         re.IGNORECASE)
     return all(ldh_re.match(x) for x in dn.split('.'))
 
@@ -159,7 +159,7 @@ class AdminPagesRestrictMiddleware(parent_class):
 
         # Check CIDR ranges if any first
         if self.ipaddress_module_loaded:
-            for cidr_range in AllowedIP.objects.filter(ip_address__regex="\/\d+$"):
+            for cidr_range in AllowedIP.objects.filter(ip_address__regex=r"\/\d+$"):
                 try:
                     net = ipaddress.ip_network(cidr_range.ip_address)
                     ip = ipaddress.ip_address(str(request_ip))
@@ -175,7 +175,7 @@ class AdminPagesRestrictMiddleware(parent_class):
             if re.match(regex_ip_range.ip_address.replace("*", ".*"), request_ip):
                 return True
 
-        for domain in AllowedIP.objects.filter(ip_address__regex="^[a-zA-Z]"):
+        for domain in AllowedIP.objects.filter(ip_address__regex=r"^[a-zA-Z]"):
             if valid_fqdn(domain.ip_address) and \
                     request_ip == get_ip_address_for_fqdn(domain.ip_address):
                 return True
